@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+@theme {
+  --color-desert-sand: #f4e6d2;
+  --color-golden: #d4af37;
+  --color-royal-gold: #ffd700;
+  --color-bronze: #cd7f32;
+  --color-deep-amber: #b8860b;
+  --color-midnight-blue: #191970;
+  --color-rich-purple: #663399;
+  --color-crimson: #dc143c;
+  --color-sapphire: #0f52ba;
+
+  --font-ornate: 'Playfair Display', serif;
+  --font-body: 'Lato', sans-serif;
+}
+
+@layer base {
+  @font-face {
+    font-family: 'Playfair Display';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+  }
+
+  @font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 300 400 700;
+    font-display: swap;
+    src: url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+    font-family: var(--font-body);
+    background: linear-gradient(135deg, #191970 0%, #663399 50%, #191970 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+
+    body {
+      animation: none;
+    }
+  }
+}
+
+.ornate-border {
+  border: 2px solid var(--color-golden);
+  box-shadow:
+    0 0 20px rgba(212, 175, 55, 0.4),
+    inset 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+.star {
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.star:hover, .star:focus {
+  filter: drop-shadow(0 0 15px rgba(255, 215, 0, 1));
+  transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star:hover, .star:focus {
+    transform: none;
+  }
+}
