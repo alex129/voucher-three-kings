@@ -1,0 +1,310 @@
+---
+const restaurantName = "Prodigi";
+const recipientName = "Alex Cabrera Rastrilla";
+---
+
+<div class="voucher-card ornate-border">
+  <div class="voucher-header">
+    <svg class="ornament-top" viewBox="0 0 200 40" aria-hidden="true">
+      <path d="M0,20 Q50,0 100,20 T200,20" stroke="currentColor" stroke-width="2" fill="none" />
+      <circle cx="100" cy="20" r="8" fill="currentColor" />
+      <circle cx="40" cy="12" r="4" fill="currentColor" />
+      <circle cx="160" cy="12" r="4" fill="currentColor" />
+    </svg>
+    <h1>Regalo de los Reyes Magos</h1>
+    <p class="subtitle">Día de Reyes 2025</p>
+  </div>
+
+  <div class="voucher-body">
+    <div class="recipient-section">
+      <p class="label">Destinatario:</p>
+      <p class="recipient-name">{recipientName}</p>
+    </div>
+
+    <div class="gift-section">
+      <p class="blessing">
+        Como los Tres Reyes Magos viajaron desde tierras lejanas, portando regalos de oro, incienso y mirra,
+        así te presentamos esta preciada ofrenda:
+      </p>
+
+      <div class="restaurant-badge">
+        <svg class="star-accent" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <h2>{restaurantName}</h2>
+        <p class="michelin">Experiencia Gastronómica con Estrella Michelin</p>
+        <svg class="star-accent" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      </div>
+
+      <p class="closing">
+        Que esta experiencia culinaria te traiga alegría, asombro y los más exquisitos tesoros gastronómicos,
+        tan preciados como los regalos de los Magos.
+      </p>
+    </div>
+  </div>
+
+  <div class="voucher-footer">
+    <svg class="ornament-bottom" viewBox="0 0 200 40" aria-hidden="true">
+      <path d="M0,20 Q50,40 100,20 T200,20" stroke="currentColor" stroke-width="2" fill="none" />
+      <circle cx="100" cy="20" r="8" fill="currentColor" />
+      <circle cx="40" cy="28" r="4" fill="currentColor" />
+      <circle cx="160" cy="28" r="4" fill="currentColor" />
+    </svg>
+  </div>
+</div>
+
+<style>
+  .voucher-card {
+    background: linear-gradient(135deg, #f4e6d2 0%, #fff8e7 100%);
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .voucher-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .ornament-top,
+  .ornament-bottom {
+    width: 200px;
+    height: 40px;
+    margin: 0 auto 1rem;
+    color: #d4af37;
+    display: block;
+  }
+
+  .ornament-bottom {
+    margin: 1rem auto 0;
+  }
+
+  h1 {
+    font-family: var(--font-ornate);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    color: #663399;
+    margin: 0.5rem 0;
+    font-weight: 700;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: #b8860b;
+    font-style: italic;
+    margin: 0;
+  }
+
+  .voucher-body {
+    margin: 2rem 0;
+  }
+
+  .recipient-section {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #d4af37;
+  }
+
+  .label {
+    font-size: 0.9rem;
+    color: #663399;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+  }
+
+  .recipient-name {
+    font-family: var(--font-ornate);
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    color: #191970;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .gift-section {
+    padding: 1.5rem 0;
+  }
+
+  .blessing {
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    line-height: 1.8;
+    color: #4a4a4a;
+    text-align: center;
+    margin: 0 0 2rem;
+    font-style: italic;
+  }
+
+  .restaurant-badge {
+    background: linear-gradient(135deg, #663399 0%, #191970 100%);
+    color: #ffd700;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    margin: 2rem 0;
+    box-shadow: 0 10px 30px rgba(102, 51, 153, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .star-accent {
+    color: #ffd700;
+  }
+
+  .restaurant-badge h2 {
+    font-family: var(--font-ornate);
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0.5rem 0;
+    font-weight: 700;
+    letter-spacing: 3px;
+  }
+
+  .michelin {
+    font-size: 1rem;
+    margin: 0;
+    color: #f4e6d2;
+    letter-spacing: 1px;
+  }
+
+  .closing {
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    line-height: 1.8;
+    color: #4a4a4a;
+    text-align: center;
+    margin: 2rem 0 0;
+    font-style: italic;
+  }
+
+  .voucher-footer {
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  @media (min-width: 641px) {
+    .voucher-card {
+      padding: 3rem 2rem;
+      width: 90%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .voucher-card {
+      padding: 1.5rem 1rem;
+      border-radius: 15px;
+    }
+
+    .voucher-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .ornament-top,
+    .ornament-bottom {
+      width: 120px;
+      height: 30px;
+      margin-bottom: 0.75rem;
+    }
+
+    .ornament-bottom {
+      margin-top: 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin: 0.25rem 0;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+    }
+
+    .voucher-body {
+      margin: 1.5rem 0;
+    }
+
+    .recipient-section {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+    }
+
+    .label {
+      font-size: 0.75rem;
+      letter-spacing: 1.5px;
+    }
+
+    .recipient-name {
+      font-size: 1.25rem;
+    }
+
+    .gift-section {
+      padding: 1rem 0;
+    }
+
+    .blessing {
+      font-size: 0.875rem;
+      line-height: 1.6;
+      margin: 0 0 1.5rem;
+    }
+
+    .restaurant-badge {
+      padding: 1.25rem 1rem;
+      margin: 1.5rem 0;
+      border-radius: 12px;
+      gap: 0.375rem;
+    }
+
+    .star-accent {
+      width: 32px;
+      height: 32px;
+    }
+
+    .restaurant-badge h2 {
+      font-size: 1.75rem;
+      margin: 0.25rem 0;
+      letter-spacing: 2px;
+    }
+
+    .michelin {
+      font-size: 0.875rem;
+      letter-spacing: 0.5px;
+    }
+
+    .closing {
+      font-size: 0.875rem;
+      line-height: 1.6;
+      margin: 1.5rem 0 0;
+    }
+
+    .voucher-footer {
+      margin-top: 1.5rem;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .voucher-card {
+      padding: 1.25rem 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.35rem;
+    }
+
+    .restaurant-badge h2 {
+      font-size: 1.5rem;
+    }
+
+    .blessing,
+    .closing {
+      font-size: 0.8rem;
+    }
+  }
+</style>

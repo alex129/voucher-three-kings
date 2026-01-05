@@ -1,0 +1,360 @@
+---
+import Envelope from './Envelope.astro';
+---
+
+<div class="game-container" role="application" aria-label="Juego de atrapar estrellas">
+  <div class="counter-display" aria-live="polite" aria-atomic="true">
+    <div class="counter-content">
+      <svg class="counter-icon" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      <span class="counter-text">
+        <span id="caught-count">0</span> / 3 Estrellas
+      </span>
+    </div>
+  </div>
+
+  <div id="stars-container" class="stars-container" role="region" aria-label="Área de estrellas fugaces">
+    <p class="instruction-text" id="instruction-text">
+      ¡Atrapa 3 estrellas fugaces para revelar tu regalo!
+    </p>
+  </div>
+
+  <div id="game-content" class="game-content" hidden>
+    <Envelope />
+  </div>
+</div>
+
+<style>
+  .game-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .counter-display {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  .counter-content {
+    background: rgba(25, 25, 112, 0.9);
+    border: 2px solid #ffd700;
+    border-radius: 50px;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .counter-icon {
+    color: #ffd700;
+    animation: starPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes starPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+
+  .counter-text {
+    color: #ffd700;
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: var(--font-ornate);
+  }
+
+  #caught-count {
+    font-size: 1.5rem;
+    color: #fff;
+  }
+
+  .stars-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .game-content {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 60;
+    padding: 1rem;
+  }
+
+  .instruction-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffd700;
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-family: var(--font-ornate);
+    text-align: center;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    padding: 0 2rem;
+    animation: instructionFade 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes instructionFade {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .counter-icon,
+    .instruction-text {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .counter-display {
+      top: 0.5rem;
+    }
+
+    .counter-content {
+      padding: 0.5rem 1rem;
+      gap: 0.5rem;
+    }
+
+    .counter-icon {
+      width: 28px;
+      height: 28px;
+    }
+
+    .counter-text {
+      font-size: 0.875rem;
+    }
+
+    #caught-count {
+      font-size: 1.125rem;
+    }
+
+    .game-content {
+      padding: 0.5rem;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  let caughtStars = 0;
+  const totalStars = 3;
+  let gameActive = true;
+  let starInterval: number;
+
+  const starsContainer = document.getElementById('stars-container');
+  const caughtCountElement = document.getElementById('caught-count');
+  const instructionText = document.getElementById('instruction-text');
+  const gameContent = document.getElementById('game-content');
+
+  function createStar(): HTMLElement {
+    const star = document.createElement('button');
+    star.className = 'star falling-star';
+    star.setAttribute('type', 'button');
+    star.setAttribute('aria-label', 'Haz clic para atrapar esta estrella');
+
+    const size = Math.random() * 30 + 40;
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.left = `${Math.random() * (window.innerWidth - size)}px`;
+    star.style.top = '-60px';
+    star.style.position = 'absolute';
+
+    star.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width: 100%; height: 100%; color: #ffd700;">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    `;
+
+    return star;
+  }
+
+  function animateStar(star: HTMLElement): void {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = prefersReducedMotion ? 2 : (Math.random() * 3 + 4);
+    const rotation = Math.random() * 720 - 360;
+
+    gsap.to(star, {
+      y: window.innerHeight + 100,
+      rotation: rotation,
+      duration: duration,
+      ease: 'none',
+      onComplete: () => {
+        if (star.parentNode) {
+          star.remove();
+        }
+      }
+    });
+  }
+
+  function catchStar(star: HTMLElement): void {
+    if (!gameActive) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    gsap.killTweensOf(star);
+
+    gsap.to(star, {
+      scale: 2,
+      opacity: 0,
+      duration: prefersReducedMotion ? 0.1 : 0.5,
+      ease: 'power2.out',
+      onComplete: () => {
+        star.remove();
+      }
+    });
+
+    caughtStars++;
+    if (caughtCountElement) {
+      caughtCountElement.textContent = caughtStars.toString();
+    }
+
+    const announcement = document.createElement('div');
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.className = 'sr-only';
+    announcement.textContent = `¡Estrella ${caughtStars} de ${totalStars} atrapada!`;
+    document.body.appendChild(announcement);
+    setTimeout(() => announcement.remove(), 1000);
+
+    if (caughtStars >= totalStars) {
+      endGame();
+    }
+  }
+
+  function endGame(): void {
+    gameActive = false;
+    clearInterval(starInterval);
+
+    const allStars = document.querySelectorAll('.falling-star');
+    allStars.forEach(star => {
+      gsap.killTweensOf(star);
+      (star as HTMLElement).remove();
+    });
+
+    if (instructionText) {
+      gsap.to(instructionText, {
+        opacity: 0,
+        duration: 0.5,
+        onComplete: () => {
+          instructionText.style.display = 'none';
+        }
+      });
+    }
+
+    if (starsContainer) {
+      gsap.to(starsContainer, {
+        opacity: 0,
+        duration: 1,
+        onComplete: () => {
+          starsContainer.style.display = 'none';
+        }
+      });
+    }
+
+    setTimeout(() => {
+      if (gameContent) {
+        gameContent.hidden = false;
+
+        const openEnvelopeFunc = (window as any).openEnvelope;
+        if (typeof openEnvelopeFunc === 'function') {
+          setTimeout(() => {
+            openEnvelopeFunc();
+          }, 500);
+        }
+      }
+    }, 1000);
+  }
+
+  function spawnStar(): void {
+    if (!gameActive || !starsContainer) return;
+
+    const star = createStar();
+    starsContainer.appendChild(star);
+
+    star.addEventListener('click', () => catchStar(star));
+    star.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      catchStar(star);
+    }, { passive: false });
+
+    star.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        catchStar(star);
+      }
+    });
+
+    animateStar(star);
+  }
+
+  function startGame(): void {
+    spawnStar();
+    spawnStar();
+    spawnStar();
+
+    const spawnInterval = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 2000 : 1500;
+    starInterval = window.setInterval(spawnStar, spawnInterval);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('load', () => {
+      setTimeout(startGame, 500);
+    });
+  }
+</script>
+
+<style is:global>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .falling-star {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+  }
+
+  .falling-star:focus {
+    outline: 3px solid #ffd700;
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+
+  .falling-star:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  .falling-star:focus-visible {
+    outline: 3px solid #ffd700;
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+</style>

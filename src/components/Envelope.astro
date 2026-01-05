@@ -1,0 +1,208 @@
+---
+import VoucherCard from './VoucherCard.astro';
+---
+
+<div id="envelope-container" class="envelope-wrapper" role="region" aria-label="Sobre del vale regalo">
+  <div class="envelope" id="envelope">
+    <div class="envelope-flap" id="envelope-flap">
+      <div class="flap-design">
+        <svg viewBox="0 0 300 150" aria-hidden="true">
+          <path d="M0,0 L150,100 L300,0 Z" fill="url(#flap-gradient)" />
+          <defs>
+            <linearGradient id="flap-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#b8860b;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <circle cx="150" cy="80" r="25" fill="#dc143c" stroke="#8b0000" stroke-width="2" />
+          <text x="150" y="90" text-anchor="middle" fill="#ffd700" font-size="24" font-weight="bold">✦</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="envelope-body" id="envelope-body">
+      <div class="envelope-pattern" aria-hidden="true">
+        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <pattern id="arabesque" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              <circle cx="50" cy="50" r="2" fill="rgba(212, 175, 55, 0.3)" />
+              <path d="M 50,30 Q 60,40 50,50 Q 40,40 50,30" fill="none" stroke="rgba(212, 175, 55, 0.2)" stroke-width="1" />
+              <path d="M 50,70 Q 60,60 50,50 Q 40,60 50,70" fill="none" stroke="rgba(212, 175, 55, 0.2)" stroke-width="1" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#arabesque)" />
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="voucher-reveal" id="voucher-reveal" hidden>
+    <VoucherCard />
+  </div>
+</div>
+
+<style>
+  .envelope-wrapper {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px;
+    position: relative;
+  }
+
+  .envelope {
+    position: relative;
+    width: min(450px, 85vw);
+    height: min(320px, 55vh);
+    transform-style: preserve-3d;
+    margin: 0 auto;
+  }
+
+  .envelope-body {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #d4af37 0%, #ffd700 50%, #d4af37 100%);
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 3px solid #b8860b;
+    overflow: hidden;
+  }
+
+  .envelope-pattern {
+    width: 100%;
+    height: 100%;
+    opacity: 0.6;
+  }
+
+  .envelope-flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    transform-origin: top center;
+    transform-style: preserve-3d;
+    z-index: 10;
+  }
+
+  .flap-design {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+  }
+
+  .flap-design svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .voucher-reveal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 70;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  .voucher-reveal:not([hidden]) {
+    pointer-events: auto;
+  }
+
+  @media (max-width: 768px) {
+    .envelope {
+      width: 90vw;
+      height: 45vh;
+      min-height: 280px;
+    }
+
+    .voucher-reveal {
+      padding: 0.5rem;
+      align-items: flex-start;
+      padding-top: 5rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .envelope {
+      width: 92vw;
+      height: 40vh;
+      min-height: 250px;
+    }
+
+    .voucher-reveal {
+      padding: 0.25rem;
+      padding-top: 4rem;
+    }
+  }
+
+  @media (max-height: 700px) {
+    .voucher-reveal {
+      align-items: flex-start;
+      padding-top: 3rem;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const envelope = document.getElementById('envelope');
+  const envelopeFlap = document.getElementById('envelope-flap');
+  const envelopeBody = document.getElementById('envelope-body');
+  const voucherReveal = document.getElementById('voucher-reveal');
+
+  export function openEnvelope() {
+    if (!envelope || !envelopeFlap || !envelopeBody || !voucherReveal) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = prefersReducedMotion ? 0.1 : 1.5;
+
+    const timeline = gsap.timeline({
+      defaults: { ease: 'power2.inOut' }
+    });
+
+    timeline
+      .to(envelopeFlap, {
+        rotationX: -180,
+        duration: duration,
+        transformOrigin: 'top center'
+      })
+      .to(envelope, {
+        scale: 0.8,
+        opacity: 0,
+        duration: duration * 0.6,
+        ease: 'power2.in'
+      }, `-=${duration * 0.3}`)
+      .set(voucherReveal, { hidden: false })
+      .fromTo(voucherReveal,
+        {
+          opacity: 0,
+          scale: 0.8,
+          y: 50
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: duration * 0.8,
+          ease: 'back.out(1.7)'
+        }
+      );
+  }
+
+  if (typeof window !== 'undefined') {
+    (window as any).openEnvelope = openEnvelope;
+  }
+</script>
