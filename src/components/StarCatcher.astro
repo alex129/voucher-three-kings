@@ -9,14 +9,14 @@ import Envelope from './Envelope.astro';
         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
       </svg>
       <span class="counter-text">
-        <span id="caught-count">0</span> / 3 Estrellas
+        <span id="caught-count">0</span> / 5 Estrellas
       </span>
     </div>
   </div>
 
   <div id="stars-container" class="stars-container" role="region" aria-label="Área de estrellas fugaces">
     <p class="instruction-text" id="instruction-text">
-      ¡Atrapa 3 estrellas fugaces para revelar tu regalo!
+      ¡Atrapa 5 estrellas para abrir tu regalo! ⚠️ ¡Evita las tristes! 😢
     </p>
   </div>
 
@@ -155,40 +155,54 @@ import Envelope from './Envelope.astro';
   import { gsap } from 'gsap';
 
   let caughtStars = 0;
-  const totalStars = 3;
+  const totalStars = 5;
   let gameActive = true;
   let starInterval: number;
+  let bombInterval: number;
 
   const starsContainer = document.getElementById('stars-container');
   const caughtCountElement = document.getElementById('caught-count');
   const instructionText = document.getElementById('instruction-text');
   const gameContent = document.getElementById('game-content');
 
-  function createStar(): HTMLElement {
+  function createStar(isBomb = false): HTMLElement {
     const star = document.createElement('button');
-    star.className = 'star falling-star';
+    star.className = isBomb ? 'star falling-star bomb' : 'star falling-star';
     star.setAttribute('type', 'button');
-    star.setAttribute('aria-label', 'Haz clic para atrapar esta estrella');
+    star.setAttribute('aria-label', isBomb ? '¡Bomba! No la toques' : 'Haz clic para atrapar esta estrella');
+    star.dataset.isBomb = isBomb.toString();
 
-    const size = Math.random() * 30 + 40;
+    const size = Math.random() * 25 + 35;
     star.style.width = `${size}px`;
     star.style.height = `${size}px`;
     star.style.left = `${Math.random() * (window.innerWidth - size)}px`;
     star.style.top = '-60px';
     star.style.position = 'absolute';
 
-    star.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="currentColor" style="width: 100%; height: 100%; color: #ffd700;">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-      </svg>
-    `;
+    if (isBomb) {
+      star.innerHTML = `
+        <div style="position: relative; width: 100%; height: 100%;">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width: 100%; height: 100%; color: #ffd700;">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: ${size * 0.4}px;">😢</span>
+        </div>
+      `;
+    } else {
+      star.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 100%; height: 100%; color: #ffd700;">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      `;
+    }
 
     return star;
   }
 
-  function animateStar(star: HTMLElement): void {
+  function animateStar(star: HTMLElement, isFast = false): void {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const duration = prefersReducedMotion ? 2 : (Math.random() * 3 + 4);
+    const baseDuration = isFast ? (Math.random() * 1.5 + 1.5) : (Math.random() * 2 + 3);
+    const duration = prefersReducedMotion ? 2 : baseDuration;
     const rotation = Math.random() * 720 - 360;
 
     gsap.to(star, {
@@ -207,41 +221,77 @@ import Envelope from './Envelope.astro';
   function catchStar(star: HTMLElement): void {
     if (!gameActive) return;
 
+    const isBomb = star.dataset.isBomb === 'true';
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     gsap.killTweensOf(star);
 
-    gsap.to(star, {
-      scale: 2,
-      opacity: 0,
-      duration: prefersReducedMotion ? 0.1 : 0.5,
-      ease: 'power2.out',
-      onComplete: () => {
-        star.remove();
+    if (isBomb) {
+      gsap.to(star, {
+        scale: 1.5,
+        rotation: 360,
+        opacity: 0,
+        duration: prefersReducedMotion ? 0.1 : 0.3,
+        ease: 'power2.out',
+        onComplete: () => {
+          star.remove();
+        }
+      });
+
+      caughtStars = Math.max(0, caughtStars - 1);
+      if (caughtCountElement) {
+        caughtCountElement.textContent = caughtStars.toString();
+        gsap.fromTo(caughtCountElement,
+          { color: '#ff4444', scale: 1.3 },
+          { color: '#fff', scale: 1, duration: 0.5 }
+        );
       }
-    });
 
-    caughtStars++;
-    if (caughtCountElement) {
-      caughtCountElement.textContent = caughtStars.toString();
-    }
+      const announcement = document.createElement('div');
+      announcement.setAttribute('role', 'status');
+      announcement.setAttribute('aria-live', 'polite');
+      announcement.className = 'sr-only';
+      announcement.textContent = `¡Bomba! Perdiste una estrella. Tienes ${caughtStars} de ${totalStars}`;
+      document.body.appendChild(announcement);
+      setTimeout(() => announcement.remove(), 1000);
+    } else {
+      gsap.to(star, {
+        scale: 2,
+        opacity: 0,
+        duration: prefersReducedMotion ? 0.1 : 0.5,
+        ease: 'power2.out',
+        onComplete: () => {
+          star.remove();
+        }
+      });
 
-    const announcement = document.createElement('div');
-    announcement.setAttribute('role', 'status');
-    announcement.setAttribute('aria-live', 'polite');
-    announcement.className = 'sr-only';
-    announcement.textContent = `¡Estrella ${caughtStars} de ${totalStars} atrapada!`;
-    document.body.appendChild(announcement);
-    setTimeout(() => announcement.remove(), 1000);
+      caughtStars++;
+      if (caughtCountElement) {
+        caughtCountElement.textContent = caughtStars.toString();
+        gsap.fromTo(caughtCountElement,
+          { scale: 1.3 },
+          { scale: 1, duration: 0.3 }
+        );
+      }
 
-    if (caughtStars >= totalStars) {
-      endGame();
+      const announcement = document.createElement('div');
+      announcement.setAttribute('role', 'status');
+      announcement.setAttribute('aria-live', 'polite');
+      announcement.className = 'sr-only';
+      announcement.textContent = `¡Estrella ${caughtStars} de ${totalStars} atrapada!`;
+      document.body.appendChild(announcement);
+      setTimeout(() => announcement.remove(), 1000);
+
+      if (caughtStars >= totalStars) {
+        endGame();
+      }
     }
   }
 
   function endGame(): void {
     gameActive = false;
     clearInterval(starInterval);
+    clearInterval(bombInterval);
 
     const allStars = document.querySelectorAll('.falling-star');
     allStars.forEach(star => {
@@ -286,7 +336,7 @@ import Envelope from './Envelope.astro';
   function spawnStar(): void {
     if (!gameActive || !starsContainer) return;
 
-    const star = createStar();
+    const star = createStar(false);
     starsContainer.appendChild(star);
 
     star.addEventListener('click', () => catchStar(star));
@@ -302,16 +352,43 @@ import Envelope from './Envelope.astro';
       }
     });
 
-    animateStar(star);
+    const isFast = Math.random() < 0.3;
+    animateStar(star, isFast);
+  }
+
+  function spawnBomb(): void {
+    if (!gameActive || !starsContainer) return;
+
+    const bomb = createStar(true);
+    starsContainer.appendChild(bomb);
+
+    bomb.addEventListener('click', () => catchStar(bomb));
+    bomb.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      catchStar(bomb);
+    }, { passive: false });
+
+    bomb.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        catchStar(bomb);
+      }
+    });
+
+    animateStar(bomb, Math.random() < 0.5);
   }
 
   function startGame(): void {
-    spawnStar();
-    spawnStar();
-    spawnStar();
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => spawnStar(), i * 200);
+    }
 
-    const spawnInterval = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 2000 : 1500;
-    starInterval = window.setInterval(spawnStar, spawnInterval);
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const starSpawnInterval = prefersReducedMotion ? 1800 : 1200;
+    const bombSpawnInterval = prefersReducedMotion ? 1500 : 900;
+
+    starInterval = window.setInterval(spawnStar, starSpawnInterval);
+    bombInterval = window.setInterval(spawnBomb, bombSpawnInterval);
   }
 
   if (typeof window !== 'undefined') {
@@ -342,6 +419,7 @@ import Envelope from './Envelope.astro';
     transition: filter 0.2s ease;
   }
 
+  
   .falling-star:focus {
     outline: 3px solid #ffd700;
     outline-offset: 4px;
@@ -357,4 +435,5 @@ import Envelope from './Envelope.astro';
     outline-offset: 4px;
     border-radius: 50%;
   }
-</style>
+
+  </style>
